@@ -10,3 +10,4 @@ tqdm
 seaborn
 h5py
 scikit-learn
+pytest>=9.1.1

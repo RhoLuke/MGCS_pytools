@@ -13,7 +13,6 @@ from scipy.spatial import KDTree
 
 
 class createROI:
-
     def __init__(self, points):
         self.points = points
 
@@ -339,7 +338,7 @@ def compute_differential_reddening(
         A_band1_star = band1_ini - band1_eval
         A_band2_star = band2_ini - band2_eval
         delta_e_v_band = A_band1_star - A_band2_star
-        delta_E_B_V = delta_e_v_band / ((rband1 - rband2))
+        delta_E_B_V = delta_e_v_band / (rband1 - rband2)
         corr_threshold = 2 * np.std(delta_E_B_V)
         print(f"correction threshold at: {corr_threshold:.3f}")
         band1 = np.where(
@@ -363,6 +362,6 @@ def compute_differential_reddening(
     A_band1_star = band1_ini - band1
     A_band2_star = band2_ini - band2
     delta_e_v_band = A_band1_star - A_band2_star
-    delta_E_B_V = delta_e_v_band / ((rband1 - rband2))
+    delta_E_B_V = delta_e_v_band / (rband1 - rband2)
 
     return band1, band2, delta_E_B_V, poli

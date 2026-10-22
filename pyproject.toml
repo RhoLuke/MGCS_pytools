@@ -25,6 +25,7 @@ dependencies = [
     "seaborn",
     "h5py",
     "scikit-learn",
+    "pytest>=9.1.1",
 ]
 
 [tool.setuptools]
