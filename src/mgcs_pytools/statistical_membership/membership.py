@@ -107,7 +107,6 @@ def spatial_groupby(
 
     # iterating by increasing the annulus radius
     while True:
-
         # make annulus by subtraction wrt the last subfov
         subfov = Point(ra_center, dec_center).buffer(r)
 
@@ -355,7 +354,7 @@ def do_statistical_membership(
     it_stop = None
     # for it in range(process_iter):
     while True:
-        print(f"ITERATION {it+1}")
+        print(f"ITERATION {it + 1}")
 
         # reddening differential correction
         print("Compute differential reddening..")
@@ -364,7 +363,7 @@ def do_statistical_membership(
             print("First iteration, correction threshold skipped")
             calc_corr_threhsold = False
         else:
-            print(f"Do calculation of the correction threshold")
+            print("Do calculation of the correction threshold")
             calc_corr_threhsold = True
 
         b1_corr, b2_corr, EBV, poli = compute_differential_reddening(
@@ -426,7 +425,6 @@ def do_statistical_membership(
 
         print("Start decontamination process..")
         for i, (group, fovr) in enumerate(zip(groups, fov_ratio)):
-
             # updating the membership of the groups
             # !!! this can be avoided if pandas groupby is used !!!
             group.loc[:, "membership"] = df_cluster.loc[group.index, "membership"]

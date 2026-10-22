@@ -90,47 +90,62 @@ def _generate_weighted_mvar_pdf(
 
 
 def get_component_membership_from_mcmc_chain(
-    ch: NDArray, data: NDArray, ncomp: int, par_per_comp: int
+    ch: NDArray, data: NDArray, ncomp: int, par_per_comp: int, batch_size: int = 1000
 ) -> NDArray:
     """Get component membership from MCMC chain.
 
     Parameters
-        ch: `NDArray`
-            Chain parameters.
-        data: `NDArray`
-            Observational data.
-        ncomp: `int`
-            Number of components.
-        par_per_comp: `int`
-            Number of parameters per component.
+    ----------
+    ch : NDArray
+        Chain parameters.
+    data : NDArray
+        Observational data.
+    ncomp : int
+        Number of components.
+    par_per_comp : int
+        Number of parameters per component.
+    batch_size : int, optional
+        Batch size to process chain iterations to avoid OOM, by default 1000.
 
-    Returns:
-        `NDArray`
-            Component membership.
+    Returns
+    -------
+    NDArray
+        Component membership.
     """
     x1, x2, x1e, x2e = data.T  # (Ndata,)
+    n_chain = ch.shape[0]
 
-    if ncomp > 1:
-        w = ch[:, -(ncomp - 1) :]
-    else:
-        w = 1.0
+    membership_sum = np.zeros((ncomp, x1.shape[0]))
 
-    pdf = np.empty((ncomp, x1.shape[0], ch.shape[0]))
-    for i in range(ncomp):
-        c_ch = np.empty((ch.shape[0], par_per_comp + 1))
-        c_ch[:, :par_per_comp] = ch[:, (i * par_per_comp) : (1 + i) * par_per_comp]
+    for batch_start in range(0, n_chain, batch_size):
+        batch_end = min(batch_start + batch_size, n_chain)
+        batch_ch = ch[batch_start:batch_end]
 
-        if ncomp > 1 and i < ncomp - 1:
-            c_ch[:, -1] = w[i]
-        elif ncomp > 1 and i == ncomp - 1:
-            c_ch[:, -1] = 1 - np.sum(w, axis=1)
-        elif ncomp == 1:
-            c_ch[:, -1] = w
+        if ncomp > 1:
+            w = batch_ch[:, -(ncomp - 1) :]
+        else:
+            w = 1.0
 
-        pdf[i] = _generate_weighted_mvar_pdf(c_ch, x1, x2, x1e, x2e)  # (Ndata, Nchain)
+        pdf = np.empty((ncomp, x1.shape[0], batch_ch.shape[0]))
+        for i in range(ncomp):
+            c_ch = np.empty((batch_ch.shape[0], par_per_comp + 1))
+            c_ch[:, :par_per_comp] = batch_ch[
+                :, (i * par_per_comp) : (1 + i) * par_per_comp
+            ]
 
-    # Membership
-    denom = pdf.sum(axis=0)
-    membership = pdf / denom[None, :]
+            if ncomp > 1 and i < ncomp - 1:
+                c_ch[:, -1] = w[:, i]
+            elif ncomp > 1 and i == ncomp - 1:
+                c_ch[:, -1] = 1 - np.sum(w, axis=1)
+            elif ncomp == 1:
+                c_ch[:, -1] = w
 
+            pdf[i] = _generate_weighted_mvar_pdf(
+                c_ch, x1, x2, x1e, x2e
+            )  # (Ndata, Nchain)
+
+        denom = pdf.sum(axis=0)
+        membership_sum += np.sum(pdf / denom[None, :], axis=2)
+
+    membership = membership_sum / n_chain
     return membership

@@ -3,12 +3,13 @@ from numpy.typing import NDArray
 
 import emcee
 from emcee.backends import HDFBackend
-from multiprocessing import Pool
+import multiprocessing
+from typing import Any
 
 from .set_posterior import posterior
 
 
-class MyEmceeES:
+class MCMCEnsembleSampler:
     """Class to run MCMC with emcee.
 
     This class is particularly design to use multivariate fuctions as posterior,
@@ -72,53 +73,65 @@ class MyEmceeES:
         parallel: bool = False,  # TODO: now with parallel is slower!
         from_previous_run: bool = False,
         hdf_backend_kwargs: dict | None = None,
-    ):
-        self.from_previous_run = from_previous_run
+    ) -> None:
+        self.from_previous_run: bool = from_previous_run
         if not self.from_previous_run:
-            self.data = data
-            self.pmodel = pmodel
-            self.nwalkers = nwalkers
-            self.nsteps = nsteps
-            self.ncomp = ncomp
-            self.par_per_comp = par_per_comp
-            self.ndim = (
-                (ncomp * par_per_comp) + ncomp - 1
+            if (
+                ncomp is None
+                or par_per_comp is None
+                or nwalkers is None
+                or nsteps is None
+            ):
+                raise ValueError(
+                    "Must provide ncomp, par_per_comp, nwalkers and nsteps if from_previous_run is False"
+                )
+            self.data: NDArray | None = data
+            self.pmodel: str | None = pmodel
+            self.nwalkers: int = nwalkers
+            self.nsteps: int = nsteps
+            self.ncomp: int = ncomp
+            self.par_per_comp: int = par_per_comp
+            self.ndim: int = (
+                (self.ncomp * self.par_per_comp) + self.ncomp - 1
                 if self.ncomp > 1
-                else (ncomp * par_per_comp) + ncomp
+                else (self.ncomp * self.par_per_comp) + self.ncomp
             )
-            self.qmin = qmin
-            self.qmax = qmax
-            self.fix_params = fix_params
-            self.lnk_params = lnk_params
-            self.chain = None
+            self.qmin: NDArray | None = qmin
+            self.qmax: NDArray | None = qmax
+            self.fix_params: NDArray | None = fix_params
+            self.lnk_params: NDArray | None = lnk_params
+            self.chain: NDArray | None = None
 
-            self.p0 = (
-                np.array(
+            if p0 is None:
+                if self.qmin is None or self.qmax is None:
+                    raise ValueError("Must provide qmin and qmax if p0 is not given.")
+                self.p0: NDArray = np.array(
                     [
                         np.random.uniform(self.qmin, self.qmax)
                         for _ in range(self.nwalkers)
                     ]
                 )
-                if p0 is None
-                else p0
-            )
+            else:
+                self.p0 = p0
 
-            self.p0[:, -2] = np.random.uniform(0.3, 0.6, size=self.nwalkers)
-            self.p0[:, -1] = np.random.uniform(0.0, 0.3, size=self.nwalkers)
+            # Setting some uniform variables based on old code expectation
+            if p0 is None and self.p0.shape[1] >= 2:
+                self.p0[:, -2] = np.random.uniform(0.3, 0.6, size=self.nwalkers)
+                self.p0[:, -1] = np.random.uniform(0.0, 0.3, size=self.nwalkers)
 
             self.bpars = None
 
-            self.pool = None
+            self.pool: Any = None
             if parallel:
-                self.pool = Pool()
+                self.pool = multiprocessing.Pool()
 
-            backend = None
+            backend: HDFBackend | None = None
             if save_chains:
                 backend = emcee.backends.HDFBackend(hdf_filename)
                 backend.reset(nwalkers=self.nwalkers, ndim=self.ndim)
 
             # set the sampler
-            self.sampler = emcee.EnsembleSampler(
+            self.sampler: emcee.EnsembleSampler | HDFBackend = emcee.EnsembleSampler(
                 nwalkers=self.nwalkers,
                 ndim=self.ndim,
                 log_prob_fn=posterior,
@@ -140,17 +153,26 @@ class MyEmceeES:
                 pool=self.pool,
             )
         else:
+            if hdf_backend_kwargs is None:
+                hdf_backend_kwargs = {}
             self.sampler = self.load_mcmc_run(**hdf_backend_kwargs)
 
-    def run_emcee(self):
-        """Run the MCMC using emcee.
+    def run_emcee(self) -> None:
+        """Run the MCMC using emcee."""
+        if isinstance(self.sampler, emcee.EnsembleSampler):
+            self.sampler.run_mcmc(self.p0, self.nsteps, progress=True)
+        else:
+            raise TypeError("Sampler is not an EnsembleSampler, cannot run MCMC.")
 
-        Args:
-            parallel: `bool`, optional
-                If True, use multiprocessing to run the MCMC on multiple processor.
-                If False, run the MCMC in a single process. Default is False.
+    def get_autocorr_time(self, **kwargs) -> NDArray:
+        """Get the autocorrelation time of the chains.
+
+        Returns
+        -------
+        NDArray
+            Autocorrelation time of each dimension.
         """
-        self.sampler.run_mcmc(self.p0, self.nsteps, progress=True)
+        return self.sampler.get_autocorr_time(**kwargs)
 
     def get_chain(self, **kwargs) -> NDArray:
         """Get the chain of samples.
@@ -170,7 +192,7 @@ class MyEmceeES:
         sampler: emcee.EnsembleSampler | emcee.backends.HDFBackend,
         which: str,
         percentile: list[float] = [16.0, 50.0, 84.0],
-        **kwargs
+        **kwargs,
     ) -> NDArray:
         """Obtain the model parameters from the chain.
 
