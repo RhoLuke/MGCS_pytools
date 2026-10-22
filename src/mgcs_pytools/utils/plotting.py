@@ -6,7 +6,6 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.gridspec import GridSpec
 
 from scipy.spatial import voronoi_plot_2d, Voronoi
-from scipy.stats import norm
 
 import numpy as np
 from numpy.typing import NDArray
@@ -323,7 +322,7 @@ def plot_decontamination_snapshot(
     )
     fig.suptitle(f"Decontamination at {member_threshold * 100:.0f}% membership")
     ax_cluster.set_title("Cluster + Field", y=0.9)
-    ax_decon.set_title(f"Cluster", y=0.9)
+    ax_decon.set_title("Cluster", y=0.9)
     ax_rej.set_title("Rejection", y=0.9)
     ax_field.set_title("Parallel field", y=0.9)
 
@@ -568,7 +567,7 @@ def plot_corner(
 ):
 
     labels = (
-        labels if labels is not None else [f"C{i+1}" for i in range(chain.shape[-1])]
+        labels if labels is not None else [f"C{i + 1}" for i in range(chain.shape[-1])]
     )
     fig = corner(
         chain,
@@ -776,7 +775,6 @@ def plot_vpd_and_mdist_component(
     mdist_x_sum = None
     mdist_y_sum = None
     for i in range(ncomp):
-
         # set parameters for each component
         muxp = muxpar + i * par_per_comp
         muyp = muypar + i * par_per_comp
@@ -856,7 +854,7 @@ def plot_vpd_and_mdist_component(
     )
 
     if component_labels is None:
-        component_labels = [f"C{i+1}" for i in range(ncomp)] + ["SUM"]
+        component_labels = [f"C{i + 1}" for i in range(ncomp)] + ["SUM"]
     else:
         assert len(component_labels) == ncomp, "Component labels length mismatch."
         component_labels = component_labels + ["SUM"]

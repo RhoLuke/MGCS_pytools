@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 import mgcs_pytools.utils.plotting as utplot
-from mgcs_pytools.statistical_membership.membership import do_statistical_membership
+from mgcs_pytools.statistical_membership.membership import compute_statistical_membership
 
 # import the catalog
 CATALOG_PATH_CLUSTER = os.path.abspath(...)
@@ -38,9 +38,7 @@ roi = np.array([[..., ...], [..., ...], [..., ...], [..., ...]])
 min_field_stars = (
     ...
 )  # Minimum number of field stars expected in each annular bin of the target
-member_threshold = (
-    ...
-)  # Memberhsip threshold for the reference stars in the differential reddening correction
+member_threshold = ...  # Memberhsip threshold for the reference stars in the differential reddening correction
 membership_iter = (
     ...
 )  # Trial for the statistical subtraction (put high number liker > 100)
@@ -49,7 +47,7 @@ min_star_per_cell = (
 )  # Minimum number of stars per Voronoi cell, used for the dilation process
 
 # run the statistical memberhsip
-df_output = do_statistical_membership(
+df_output = compute_statistical_membership(
     df_cluster,
     df_field,
     cluster_mag,

@@ -170,7 +170,7 @@ class MyEmceeES:
         sampler: emcee.EnsembleSampler | emcee.backends.HDFBackend,
         which: str,
         percentile: list[float] = [16.0, 50.0, 84.0],
-        **kwargs
+        **kwargs,
     ) -> NDArray:
         """Obtain the model parameters from the chain.
 

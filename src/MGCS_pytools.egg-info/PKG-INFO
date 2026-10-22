@@ -20,6 +20,7 @@ Requires-Dist: tqdm
 Requires-Dist: seaborn
 Requires-Dist: h5py
 Requires-Dist: scikit-learn
+Requires-Dist: pytest>=9.1.1
 Dynamic: license-file
 
 # Python tools used for the Missing Globular Cluster Survey [D. Massari et al. 2024](https://doi.org/10.1051/0004-6361/202554007)
