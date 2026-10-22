@@ -12,7 +12,7 @@ from shapely import (
     union,
 )
 
-from .region_tools import get_regions_count, get_pts_in_regions
+from .region_tools import get_regions_count
 
 """
 This code is adapted from 
@@ -138,7 +138,6 @@ def _cvt_vor(
     points = init_points
 
     for i in range(iters):
-
         vor = _bounded_vor(
             points,
             [
@@ -182,7 +181,6 @@ def _aggregate_regions(regions: NDArray) -> NDArray:
     regions = sorted(regions, key=lambda x: Polygon(x).area, reverse=False)
     regions = np.array(regions)
     for i, reg in enumerate(regions):
-
         if i in old_touched_regions:
             continue
 
