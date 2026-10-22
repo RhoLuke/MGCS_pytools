@@ -33,6 +33,11 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
 [project.urls]
 "Homepage" = "https://github.com/LR-inaf/MGCS_pytools"
 "Bug Tracker" = "https://github.com/LR-inaf/MGCS_pytools/issues"

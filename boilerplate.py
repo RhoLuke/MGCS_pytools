@@ -38,9 +38,7 @@ roi = np.array([[..., ...], [..., ...], [..., ...], [..., ...]])
 min_field_stars = (
     ...
 )  # Minimum number of field stars expected in each annular bin of the target
-member_threshold = (
-    ...
-)  # Memberhsip threshold for the reference stars in the differential reddening correction
+member_threshold = ...  # Memberhsip threshold for the reference stars in the differential reddening correction
 membership_iter = (
     ...
 )  # Trial for the statistical subtraction (put high number liker > 100)

@@ -12,7 +12,6 @@ src/mgcs_pytools/mcmc/bivariate_normal.py
 src/mgcs_pytools/mcmc/mcmc.py
 src/mgcs_pytools/mcmc/set_posterior.py
 src/mgcs_pytools/mcmc/utils.py
-src/mgcs_pytools/mcmc/legacy/multivariate_2d_posterior.py
 src/mgcs_pytools/statistical_membership/__init__.py
 src/mgcs_pytools/statistical_membership/cvt_grid.py
 src/mgcs_pytools/statistical_membership/dr_correction.py
@@ -20,3 +19,4 @@ src/mgcs_pytools/statistical_membership/membership.py
 src/mgcs_pytools/statistical_membership/region_tools.py
 src/mgcs_pytools/utils/__init__.py
 src/mgcs_pytools/utils/plotting.py
+tests/test_mcmc.py

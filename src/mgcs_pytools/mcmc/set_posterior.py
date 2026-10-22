@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.typing import NDArray
+from .bivariate_normal import _logl, _lnprior
 
 
 def posterior(
@@ -7,7 +8,7 @@ def posterior(
     data: NDArray,
     qmin: NDArray,
     qmax: NDArray,
-    component: NDArray,
+    component: int,
     pmodel: str = "bivariate_normal",
     fix_params: NDArray | None = None,
     lnk_params: NDArray | None = None,
@@ -44,9 +45,7 @@ def posterior(
             Logarithm of the posterior probability.
     """
 
-    if pmodel == "bivariate_normal":
-        from .bivariate_normal import _logl, _lnprior
-    else:
+    if pmodel != "bivariate_normal":
         raise ValueError(f"Model {pmodel} is not supported.")
 
     lp = _lnprior(prm, qmin, qmax, component)
@@ -54,7 +53,7 @@ def posterior(
     if fix_params is not None:
         prm_new = np.where(np.isnan(fix_params), prm, fix_params)
     else:
-        prm_new = prm
+        prm_new = prm.copy()
 
     if lnk_params is not None:
         for to_link, which in lnk_params:
