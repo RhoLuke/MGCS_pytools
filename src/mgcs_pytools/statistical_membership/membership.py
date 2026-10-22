@@ -107,7 +107,6 @@ def spatial_groupby(
 
     # iterating by increasing the annulus radius
     while True:
-
         # make annulus by subtraction wrt the last subfov
         subfov = Point(ra_center, dec_center).buffer(r)
 
@@ -117,7 +116,7 @@ def spatial_groupby(
             intersection(difference(subfov, subfovs[-1]), fov).area
             > min_area / area_conversion
         ):
-            pol = intersection(difference(subfov, subfovs[-1]), fov)
+            intersection(difference(subfov, subfovs[-1]), fov)
             subfovs.append(subfov)
         r += dr
 
@@ -355,23 +354,23 @@ def do_statistical_membership(
     it_stop = None
     # for it in range(process_iter):
     while True:
-        print(f"ITERATION {it+1}")
+        print(f"ITERATION {it + 1}")
 
         # reddening differential correction
         print("Compute differential reddening..")
         # print(df_cluster["membership"].describe())
         if it == 0:
             print("First iteration, correction threshold skipped")
-            calc_corr_threhsold = False
+            calc_correction_threshold = False
         else:
-            print(f"Do calculation of the correction threshold")
-            calc_corr_threhsold = True
+            print("Do calculation of the correction threshold")
+            calc_correction_threshold = True
 
         b1_corr, b2_corr, EBV, poli = compute_differential_reddening(
             df_cluster,
             params=dr_params,
             member_threshold=member_threshold,
-            calc_corr_threhsold=calc_corr_threhsold,
+            calc_correction_threshold=calc_correction_threshold,
             roi=roi,
             plot=plot_dred,
         )
@@ -426,7 +425,6 @@ def do_statistical_membership(
 
         print("Start decontamination process..")
         for i, (group, fovr) in enumerate(zip(groups, fov_ratio)):
-
             # updating the membership of the groups
             # !!! this can be avoided if pandas groupby is used !!!
             group.loc[:, "membership"] = df_cluster.loc[group.index, "membership"]

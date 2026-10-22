@@ -51,7 +51,6 @@ def _logl(data, prm, component, stride=5):
     # create a model for each component
     c_dist = np.zeros(pm_ra.shape)
     for i in range(component):
-
         cprm = prm[(i * stride) : (i + 1) * stride]
         sigma_ra = np.sqrt(cprm[2] * cprm[2] + epm_ra * epm_ra)
         sigma_dec = np.sqrt(cprm[3] * cprm[3] + epm_dec * epm_dec)
